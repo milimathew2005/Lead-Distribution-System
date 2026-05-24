@@ -208,7 +208,7 @@ export default function DashboardPage() {
                             </div>
                             {allocation.lead.description && (
                               <p className="text-slate-400 mt-1.5 pt-1.5 border-t border-slate-100 italic line-clamp-2">
-                                "{allocation.lead.description}"
+                                &quot;{allocation.lead.description}&quot;
                               </p>
                             )}
                           </div>

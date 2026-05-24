@@ -1,7 +1,7 @@
 import { PrismaClient, ServiceType } from '@prisma/client';
 
 const prisma = new PrismaClient();
-const BASE_URL = 'http://localhost:3003';
+const BASE_URL = 'http://localhost:3000';
 
 async function resetDb() {
   console.log('\n--- Resetting Database to Clean Seed State ---');
