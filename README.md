@@ -252,8 +252,3 @@ prisma/
 - [ ] **Concurrency** — Generate 10 leads simultaneously → no duplicate allocations, no count drift
 - [ ] **Transaction Rollback** — Disable a mandatory provider → allocation fails cleanly with no partial data
 
----
-
-## License
-
-MIT
