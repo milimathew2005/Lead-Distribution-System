@@ -1,0 +1,70 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum ServiceType {
+  SERVICE_1
+  SERVICE_2
+  SERVICE_3
+}
+
+model Lead {
+  id          String           @id @default(uuid())
+  name        String
+  email       String
+  phone       String
+  serviceType ServiceType
+  description String
+  status      String           @default("PENDING") // PENDING, ALLOCATED, FAILED
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+  allocations LeadAllocation[]
+
+  // Duplicate Lead Rule: Same phone number cannot submit the SAME service twice
+  @@unique([phone, serviceType])
+}
+
+model Provider {
+  id                String           @id // We seed this with human-readable IDs: "provider_1", etc.
+  name              String
+  email             String           @unique
+  quota             Int              @default(10) // Default monthly quota is 10
+  currentLeadsCount Int              @default(0)  // Active allocations count
+  isActive          Boolean          @default(true)
+  createdAt         DateTime         @default(now())
+  updatedAt         DateTime         @updatedAt
+  allocations       LeadAllocation[]
+}
+
+model LeadAllocation {
+  id         String   @id @default(uuid())
+  leadId     String
+  providerId String
+  createdAt  DateTime @default(now())
+
+  lead     Lead     @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  provider Provider @relation(fields: [providerId], references: [id], onDelete: Cascade)
+
+  // Prevent duplicate provider assignment for the same lead
+  @@unique([leadId, providerId])
+}
+
+model AllocationState {
+  id             String      @id @default(uuid())
+  serviceType    ServiceType @unique
+  lastProviderId String?     // Stores the ID of the last round-robin provider assigned for this service pool
+  updatedAt      DateTime    @updatedAt
+}
+
+model WebhookEvent {
+  id          String   @id @default(uuid())
+  eventId     String   @unique // Client-provided idempotency key
+  eventType   String              // e.g. "QUOTA_RESET"
+  payload     String?             // Optional JSON payload stored as text
+  processedAt DateTime @default(now())
+}
